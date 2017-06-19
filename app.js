@@ -7,6 +7,7 @@ var express = require("express")
     , cookieparser = require("cookie-parser")
     , flash = require('connect-flash');
 
+var pug = require('pug');
 //var passport = require("passport")
 //    , LocalStrategy = require("passport-local").Strategy;
 
@@ -21,12 +22,14 @@ app.use(exp_session({
   resave: false
 }));
 app.use(flash());
+app.set('/views', path.join(__dirname, 'views'));
+app.set('view engine', 'pug');
 
+app.use("/bootstrap", express.static(path.join(__dirname, "/static/bootstrap")));
+app.use("/stylesheets", express.static(path.join(__dirname, "/static/stylesheets")));
 
-app.use("/static", express.static(path.join(__dirname, "/static")));
 app.get('/', (req, rsp) => {
-  rsp.write('Hello world');
-  rsp.end();
+  rsp.render('index', { title: 'Hey', message: 'ok' });
 });
 
 port = process.env.PORT || 3000
