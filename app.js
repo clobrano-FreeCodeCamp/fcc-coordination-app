@@ -8,6 +8,7 @@ var express = require("express")
     , flash = require('connect-flash');
 
 var pug = require('pug');
+var request = require('request');
 //var passport = require("passport")
 //    , LocalStrategy = require("passport-local").Strategy;
 
@@ -29,7 +30,20 @@ app.use("/bootstrap", express.static(path.join(__dirname, "/static/bootstrap")))
 app.use("/stylesheets", express.static(path.join(__dirname, "/static/stylesheets")));
 
 app.get('/', (req, rsp) => {
-  rsp.render('index', { title: 'Hey', message: 'ok' });
+  var places = [];
+  //var url = 'https://jsonplaceholder.typicode.com/photos';
+  var url = 'https://jsonplaceholder.typicode.com/posts';
+  var img = 'http://placehold.it/150/771796'
+  request.get({
+    url: url,
+    json: true
+  }, (err, res, data) => {
+    if (err) return console.log (err);
+    places = data.slice(21, 30);
+    console.log(places.length);
+    rsp.render('index', { title: 'Hey', message: 'ok', places: places, img: img});
+  });
+
 });
 
 port = process.env.PORT || 3000

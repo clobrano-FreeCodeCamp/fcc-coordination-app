@@ -1,0 +1,11 @@
+/*
+* {
+  background-color: rgba(0,0,0,0.1);
+}
+*/
+
+.vcenter {
+    display: inline-block;
+    vertical-align: middle;
+    float: none;
+}

@@ -25,6 +25,7 @@
     "expressjs": "^1.0.1",
     "morgan": "^1.8.2",
     "pug": "^2.0.0-rc.2",
-    "pug-bootstrap": "0.0.15"
+    "pug-bootstrap": "0.0.15",
+    "request": "^2.81.0"
   }
 }
