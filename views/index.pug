@@ -1,25 +1,29 @@
 extends layout
 block content
-  div.top
-    form.form-horizontal(method="post", id="loginForm")
-      label Username
-      input.span3(id="username", type="text", name="User", placeholder="Enter your username")
-      label Password
-      input.span3(id="password", type="password", name="Password")
-      input.btn(type="submit", value="Log In")
+  div.navbar.navbar-default.navbar-static-top
+    div.container
+      div.navbar-header
+        button.navbar-toggle.collapsed(type="button", data-toggle="collapse", data-target="#navbar-inverse", aria-expanded="false", aria-controls="navbar")
+          span.sr-only Toggle navigation
+            span.icon-bar
+            span.icon-bar
+            span.icon-bar
+        a.navbar-brand(href="#") Aundi
+
+      div.navbar-collapse.collapse(id="navbar")
+        ul.nav.navbar-nav.navbar-right
+          li.active(role="presentation"): a(href="#") Home
+          li(role="presentation"): a(href="#Profile") Profile
+          li(role="presentation"): a(href="#about") About
+          
   div.container
-    div.content
-      table.table.table-striped
-        thead
-          tr
-            th Table
-            th Heading
-        tbody
-          tr
-            td Blah
-            td Test
-          tr
-            td Hello
-            td World
- 
+    div.container.row
+      div.col-md-3.mix
+        p= "image"
+      div.col-md-3.mix
+        p= "image"
+      div.col-md-3.mix
+        p= "image"
+      div.col-md-3.mix
+        p= "image"
   div.footer
