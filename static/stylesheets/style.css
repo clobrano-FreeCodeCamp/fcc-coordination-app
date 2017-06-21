@@ -5,7 +5,19 @@
 */
 
 .vcenter {
-    display: inline-block;
-    vertical-align: middle;
-    float: none;
+  display: inline-block;
+  vertical-align: middle;
+  float: none;
+}
+
+.description p {
+  height: 150px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.title h4 {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

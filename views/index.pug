@@ -4,21 +4,26 @@ block content
     div.row
       each place in places
         div.col-md-4.vcenter
-            div.row
+            div.row.title
               h4.text-center(style="text-transform: capitalize")= place.title
             div.row
               div.col-md-6.vcenter
-                img(src=img)
-              div.col-md-6.vcenter
+                a(href="#")
+                  img(src=img)
+              div.col-md-6.vcenter.description
                 p=place.body
             div.row
-              div.col-md-6.vcenter
+              div.col-md-6
                 button.btn.btn-default="Going"
+                span="   "
+                a(href="#")
+                  span.badge= 5
               div.col-md-6.vcenter
                 span.glyphicon.glyphicon-star
                 span.glyphicon.glyphicon-star
                 span.glyphicon.glyphicon-star
                 span.glyphicon.glyphicon-star
                 span.glyphicon.glyphicon-star-empty
+            br
 
  
