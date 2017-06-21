@@ -1,0 +1,19 @@
+extends layout
+block content
+  .wrapper
+    form.form-signin(action= action, method="POST")
+      h2.form-signin-heading= title
+      label(for="username") Username:
+      .input-group
+        span.input-group-addon(id="username-addon")
+          span.glyphicon.glyphicon-user
+        input.form-control(type="text", name="username")
+      label(for="password")
+      .input-group
+        span.input-group-addon(id="password-addon")
+          span.glyphicon.glyphicon-lock
+        input.form-control(type="password", name="password")
+      br
+      button.btn.btn-lg.btn-success.btn-block(type="submit")= buttonSubmit
+      p.text-center= "Or"
+      a.btn.btn-lg.btn-info.btn-block(role="button" href="/register")= buttonAlternative
