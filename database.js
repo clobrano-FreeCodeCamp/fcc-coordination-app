@@ -11,13 +11,17 @@ if (user && pass) {
 }
 
 
-
-module.exports.on_connect = function on_connect(action, userdata, cbk) {
-    mongodb.connect(url, (err, db) => {
-        if (err)
-            console.error("Could not connect to database");
-        assert.equal(null, err);
-        if (action)
-            action(db, userdata, cbk);
+const Database = function () {
+  this.on_connect = function (action, userdata, callback) {
+    mongodb.connect (url, (err, db) => {
+      assert.equal (null, err);
+      action (db, userdata, callback);
     });
+  },
+
+  this.verify_password = function (plain_password, user_password, callback) {
+    return callback (false);
+  }
 };
+
+module.exports = new Database;

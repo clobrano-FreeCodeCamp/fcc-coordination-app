@@ -11,7 +11,7 @@ const request = require ('request');
 const get_places = require ('./yelp').get_places
 const passport = require ("passport")
     , LocalStrategy = require ("passport-local").Strategy;
-const on_connect = require ('./database.js');
+const db = require ('./database');
 
 const app = express();
 app.use (logger('dev'));
@@ -40,13 +40,24 @@ function find_user (database, filter, callback) {
   });
 }
 
+function add_user (database, user, callback) {
+  const users = database.collection('users');
+  users.insertOne (user, (err, res) => {
+    assert.equal (err, null);
+    callback (true);
+  });
+}
+
 passport.use ('local', new LocalStrategy ((username, password, done) => {
-  on_connect (find_user, {'username': username}, (err, user) => {
+  db.on_connect (find_user, {'username': username}, (err, user) => {
     if (err) { return done(err); }
 
-    verifyPassword (password, user.password, res => {
-      if (res) { return done (null, user); }
-      return done (null, false, {'error': 'Could not find user'});
+    db.verify_password (password, user.password, res => {
+      console.log('Verify returned: ' + res);
+      if (res) {
+        return done (null, user);
+      }
+      return done (null, false, {'error': 'Invalid username or password'} );
     });
   });
 }));
@@ -56,7 +67,7 @@ passport.serializeUser ((user, done) => {
 });
 
 passport.deserializeUser ((id, done) => {
-  on_connect (find_user, {'_id': id}, (err, user) => {
+  db.on_connect (find_user, {'_id': id}, (err, user) => {
     if (err) { return done (err); }
     return done (null, user);
   });
@@ -78,9 +89,50 @@ app.get ('/login', (req, rsp) => {
     'title' : 'Please login',
     'buttonSubmit': 'Login',
     'buttonAlternative': 'Register',
-    'error': req.flash('error')
   });
 });
+
+app.post ('/login',
+    passport.authenticate ('local', {
+        successRedirect: '/',
+        failureRedirect: '/login',
+        failureFlash: 'Invalid username or password' 
+    })
+);
+
+app.get ('/register', (req, rsp) => {
+  rsp.render ('user-form', {
+    'action': '/register',
+    'title' : 'Please register',
+    'buttonSubmit': 'Register',
+    'buttonAlternative': 'Login',
+  });
+});
+
+app.post ('/register', (req, rsp, next) => {
+  db.on_connect (find_user, {'username': req.body.username}, (err, user) => {
+    if (err) {
+      req.flash ('error', 'Unknown error');
+      return rsp.redirect ('/register');
+    }
+
+    if (user) {
+      req.flash ('error', 'User already exists');
+      return rsp.redirect ('/register');
+
+    }
+
+    const new_user = {
+      'username': req.body.username,
+      'password': req.body.password
+    }
+
+    db.on_connect (add_user, new_user, res => {
+      if (res) return rsp.redirect ('/');
+    });
+  });
+});
+
 
 app.post ('/going',
   require ('connect-ensure-login').ensureLoggedIn(),
@@ -88,6 +140,8 @@ app.post ('/going',
     console.log(req.user)
     rsp.redirect ('/');
 });
+
+
 
 port = process.env.PORT || 3000
 app.listen(port);
