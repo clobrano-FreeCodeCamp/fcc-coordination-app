@@ -13,13 +13,18 @@ html
               span.icon-bar
               span.icon-bar
               span.icon-bar
-          a.navbar-brand(href="#") Aundi
+          a.navbar-brand(href="/") Aundi
 
         div.navbar-collapse.collapse(id="navbar")
           ul.nav.navbar-nav.navbar-right
-            li.active(role="presentation"): a(href="#") Home
-            li(role="presentation"): a(href="#Profile") Profile
-            li(role="presentation"): a(href="#about") About
+            if loggedin
+              li(role="presentation")
+                p.navbar-text
+                  strong= `Logged in as ${username}`
+              li(role="presentation"): a(href="/logout") Logout
+            else
+              li(role="presentation"): a(href="/login") Sign In 
+              li(role="presentation"): a(href="/register") Sign Up 
             
     block content
 

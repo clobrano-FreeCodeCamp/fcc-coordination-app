@@ -64,10 +64,12 @@ passport.use ('local', new LocalStrategy ((username, password, done) => {
 }));
 
 passport.serializeUser ((user, done) => {
+  console.log ('serialize: ' + JSON.stringify (user));
   done (null, user._id);
 });
 
 passport.deserializeUser ((id, done) => {
+  console.log ('deserialize: ' + id);
   db.find_user ({'_id': id}, (err, user) => {
     if (err) { return done (err); }
     return done (null, user);
@@ -75,12 +77,23 @@ passport.deserializeUser ((id, done) => {
 });
 
 app.get('/', (req, rsp) => {
+  if (req.user) {
+      loggedin = true;
+      username = req.user.username;
+  } else {
+      loggedin = false;
+      username = null;
+  }
+
   const places = [];
   get_places('cagliari, it', (err, places) => {
     places.map (place => {
       place.image_url = place.image_url || '/img/silverware-1667988_640.png';
     });
-    rsp.render('index', { places: places });
+    rsp.render('index', {
+        'loggedin': loggedin,
+        'username': username,
+        places: places });
   });
 });
 
@@ -129,9 +142,20 @@ app.post ('/register', (req, rsp, next) => {
     }
 
     db.add_user (new_user, res => {
-      if (res) return rsp.redirect ('/');
+      if (res) {
+        req.login (new_user, (err) => {
+          if (err) return next (err);
+          rsp.redirect ('/');
+        });
+      }
     });
   });
+});
+
+
+app.get ('/logout', (req, rsp) => {
+  req.logout ();   
+  rsp.redirect ('/');
 });
 
 
@@ -141,8 +165,6 @@ app.post ('/going',
     console.log(req.user)
     rsp.redirect ('/');
 });
-
-
 
 port = process.env.PORT || 3000
 app.listen(port);

@@ -19,6 +19,12 @@ on_connect = function (action, userdata, callback) {
 }
 
 function _find_user (database, filter, callback) {
+  if (filter._id) {
+    const old_id = filter._id
+    filter._id = mongodb.ObjectId (old_id);
+  }
+
+  console.log ('database: find ' + JSON.stringify (filter));
   const users = database.collection('users');
   users.findOne (filter, (err, user) => {
     callback (err, user);
