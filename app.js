@@ -141,9 +141,9 @@ app.post ('/register', (req, rsp, next) => {
       'password': req.body.password
     }
 
-    db.add_user (new_user, res => {
+    db.add_user (new_user, (res, registered_user) => {
       if (res) {
-        req.login (new_user, (err) => {
+        req.login (registered_user, (err) => {
           if (err) return next (err);
           rsp.redirect ('/');
         });

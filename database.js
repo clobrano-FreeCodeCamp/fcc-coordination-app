@@ -44,7 +44,7 @@ function _add_user (database, user, callback) {
     const users = database.collection ('users');
     users.insertOne (newuser, (err, res) => {
       assert.equal (err, null);
-      callback (res);
+      callback (res, newuser);
     });
   });
 }
