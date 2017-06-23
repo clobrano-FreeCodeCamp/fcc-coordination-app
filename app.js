@@ -49,8 +49,9 @@ function add_user (database, user, callback) {
 }
 
 passport.use ('local', new LocalStrategy ((username, password, done) => {
-  db.on_connect (find_user, {'username': username}, (err, user) => {
+  db.find_user ({'username': username}, (err, user) => {
     if (err) { return done(err); }
+    if (!user) { return done (null, false, {'error': 'Invalid username or password'} ); };
 
     db.verify_password (password, user.password, res => {
       console.log('Verify returned: ' + res);
@@ -67,7 +68,7 @@ passport.serializeUser ((user, done) => {
 });
 
 passport.deserializeUser ((id, done) => {
-  db.on_connect (find_user, {'_id': id}, (err, user) => {
+  db.find_user ({'_id': id}, (err, user) => {
     if (err) { return done (err); }
     return done (null, user);
   });
@@ -110,7 +111,7 @@ app.get ('/register', (req, rsp) => {
 });
 
 app.post ('/register', (req, rsp, next) => {
-  db.on_connect (find_user, {'username': req.body.username}, (err, user) => {
+  db.find_user ({'username': req.body.username}, (err, user) => {
     if (err) {
       req.flash ('error', 'Unknown error');
       return rsp.redirect ('/register');
@@ -127,7 +128,7 @@ app.post ('/register', (req, rsp, next) => {
       'password': req.body.password
     }
 
-    db.on_connect (add_user, new_user, res => {
+    db.add_user (new_user, res => {
       if (res) return rsp.redirect ('/');
     });
   });
@@ -145,4 +146,4 @@ app.post ('/going',
 
 port = process.env.PORT || 3000
 app.listen(port);
-console.log('Server listening on port ' + port);
+console.log('Server listening on http://localhost:' + port);
