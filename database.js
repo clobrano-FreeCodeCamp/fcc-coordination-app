@@ -1,9 +1,9 @@
-var mongodb = require ('mongodb');
-var assert = require ('assert');
-var bcrypt = require ('bcryptjs');
+const mongodb = require ('mongodb');
+const assert = require ('assert');
+const bcrypt = require ('bcryptjs');
 
-var user = process.env.MONGO_USER;
-var pass = process.env.MONGO_PASSWORD;
+const user = process.env.MONGO_USER;
+const pass = process.env.MONGO_PASSWORD;
 
 if (user && pass) {
     var url = 'mongodb://' + user + ':' + pass + '@ds111262.mlab.com:11262/voting-app';
@@ -19,7 +19,6 @@ on_connect = function (action, userdata, callback) {
 }
 
 function _find_user (database, filter, callback) {
-  console.log ('Looking for: ' + JSON.stringify (filter));
   const users = database.collection('users');
   users.findOne (filter, (err, user) => {
     callback (err, user);
@@ -47,7 +46,15 @@ function _add_user (database, user, callback) {
 
 const Database = function () {
   this.verify_password = function (plain_password, user_password, callback) {
-    callback (false);
+    const iterations = 5;
+    bcrypt.compare (plain_password, user_password, (err, res) => {
+      if (err) {
+        console.log ('auth: hashing error ' + err);
+        return callback (false);
+      }
+
+      return callback (res);
+    });
   },
 
   this.find_user = (filter, callback) => {

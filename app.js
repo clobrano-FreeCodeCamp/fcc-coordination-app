@@ -53,7 +53,7 @@ passport.use ('local', new LocalStrategy ((username, password, done) => {
     if (err) { return done(err); }
     if (!user) { return done (null, false, {'error': 'Invalid username or password'} ); };
 
-    db.verify_password (password, user.password, res => {
+    db.verify_password (password, user.hash, res => {
       console.log('Verify returned: ' + res);
       if (res) {
         return done (null, user);
