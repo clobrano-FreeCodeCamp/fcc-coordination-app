@@ -2,7 +2,7 @@ extends layout
 block content
   .main-container
     .row
-      each place in places
+      each place, index in places
         .col-md-4.vcenter
             .row.title
               h3.text-center(style="text-transform: capitalize")= place.name
@@ -14,8 +14,8 @@ block content
                   p= place.location.display_address.join(', ')
             .row
               .col-md-6
-                form(method="POST" action="/going")
+                form(method="POST" action="/going/" + index)
                   button.btn.btn-default(type="submit") Going
                   span="   "
                   a(href="#")
-                    span.badge= 5
+                    span.badge= place.going

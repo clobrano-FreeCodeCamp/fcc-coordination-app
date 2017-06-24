@@ -64,17 +64,17 @@ passport.use ('local', new LocalStrategy ((username, password, done) => {
 }));
 
 passport.serializeUser ((user, done) => {
-  console.log ('serialize: ' + JSON.stringify (user));
   done (null, user._id);
 });
 
 passport.deserializeUser ((id, done) => {
-  console.log ('deserialize: ' + id);
   db.find_user ({'_id': id}, (err, user) => {
     if (err) { return done (err); }
     return done (null, user);
   });
 });
+
+const location = 'sassari, it';
 
 app.get('/', (req, rsp) => {
   if (req.user) {
@@ -86,14 +86,34 @@ app.get('/', (req, rsp) => {
   }
 
   const places = [];
-  get_places('cagliari, it', (err, places) => {
-    places.map (place => {
-      place.image_url = place.image_url || '/img/silverware-1667988_640.png';
-    });
-    rsp.render('index', {
-        'loggedin': loggedin,
-        'username': username,
-        places: places });
+  get_places(location, (err, places) => {
+    var date = getDate ();
+    var waiting = 0;
+
+    for (var p in places) {
+      var place = places [p];
+      var data = {};
+
+      data [date] = place.name;
+      data.transaction_id = p;
+  
+      waiting++;
+      db.get_people_going_to (data, (tr_id, people) => {
+        if (people.length) {
+          places[tr_id].going = people.length;
+        } else {
+          places[tr_id].going = 0;
+        }
+
+        waiting--;
+        if (!waiting)
+          rsp.render('index', {
+              'loggedin': loggedin,
+              'username': username,
+              places: places
+          });
+      });
+    }
   });
 });
 
@@ -158,12 +178,35 @@ app.get ('/logout', (req, rsp) => {
   rsp.redirect ('/');
 });
 
+function getDate () {
+  const now = new Date ();
+  var dd = now.getDate ();
+  var mm = now.getMonth () + 1;
+  var yyyy = now.getYear () + 1900;
 
-app.post ('/going',
+  dd = dd < 10? '0' + dd : dd;
+  mm = mm < 10? '0' + mm : mm;
+
+  return dd + '-' + mm + '-' + yyyy;
+}
+
+app.post ('/going/:id',
   require ('connect-ensure-login').ensureLoggedIn(),
   (req, rsp) => {
-    console.log(req.user)
-    rsp.redirect ('/');
+    var user = req.user;
+    var id = req.params.id;
+
+    get_places (location, (err, places) => {
+      var place = places[id];
+      var today = getDate ();
+
+      user[today] = place.name;
+      
+      db.update_user (user, res => {
+        rsp.redirect ('/');
+      });
+
+    });
 });
 
 port = process.env.PORT || 3000

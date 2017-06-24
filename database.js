@@ -24,7 +24,6 @@ function _find_user (database, filter, callback) {
     filter._id = mongodb.ObjectId (old_id);
   }
 
-  console.log ('database: find ' + JSON.stringify (filter));
   const users = database.collection('users');
   users.findOne (filter, (err, user) => {
     callback (err, user);
@@ -49,6 +48,28 @@ function _add_user (database, user, callback) {
   });
 }
 
+function _update_user (database, user, callback) {
+  const users = database.collection ('users');
+  users.update (
+    {'_id': user._id},
+    user, 
+    {upsert: true}
+  );
+  callback(true);
+}
+
+function _get_people_going_to (database, data, callback) {
+  const users = database.collection ('users');
+  const filter = data;
+  const transaction_id = data.transaction_id;
+
+  delete filter.transaction_id;
+
+  users.find(filter).toArray ((res, people) =>{
+    callback (transaction_id, people);
+  });
+}
+
 
 const Database = function () {
   this.verify_password = function (plain_password, user_password, callback) {
@@ -69,6 +90,14 @@ const Database = function () {
 
   this.add_user = (user, callback) => {
     on_connect (_add_user, user, callback);
+  },
+
+  this.update_user = (updated_user, callback) => {
+    on_connect (_update_user, updated_user, callback);
+  },
+
+  this.get_people_going_to = (data, callback) => {
+    on_connect (_get_people_going_to, data, callback);
   }
 };
 
