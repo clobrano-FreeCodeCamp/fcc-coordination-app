@@ -74,7 +74,7 @@ passport.deserializeUser ((id, done) => {
   });
 });
 
-const location = 'sassari, it';
+const location = 'cagliari, it';
 
 app.get('/', (req, rsp) => {
   if (req.user) {
@@ -94,7 +94,7 @@ app.get('/', (req, rsp) => {
       var place = places [p];
       var data = {};
 
-      data [date] = place.name;
+      data [date] = place.name + place.location.display_address;
       data.transaction_id = p;
   
       waiting++;
@@ -200,7 +200,7 @@ app.post ('/going/:id',
       var place = places[id];
       var today = getDate ();
 
-      user[today] = place.name;
+      user[today] = place.name + place.location.display_address;
       
       db.update_user (user, res => {
         rsp.redirect ('/');
