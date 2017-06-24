@@ -33,21 +33,6 @@ app.use ("/bootstrap", express.static(path.join(__dirname, "/static/bootstrap"))
 app.use ("/stylesheets", express.static(path.join(__dirname, "/static/stylesheets")));
 app.use ("/img", express.static(path.join(__dirname, "/static/img")));
 
-function find_user (database, filter, callback) {
-  const users = database.collection('users');
-  users.findOne (filter, (err, user) => {
-    callback (err, user);
-  });
-}
-
-function add_user (database, user, callback) {
-  const users = database.collection('users');
-  users.insertOne (user, (err, res) => {
-    assert.equal (err, null);
-    callback (true);
-  });
-}
-
 passport.use ('local', new LocalStrategy ((username, password, done) => {
   db.find_user ({'username': username}, (err, user) => {
     if (err) { return done(err); }
