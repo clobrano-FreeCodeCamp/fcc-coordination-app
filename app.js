@@ -94,6 +94,10 @@ app.get('/', (req, rsp) => {
       var place = places [p];
       var data = {};
 
+      // Setting default pic if not there already
+      place.image_url = place.image_url || '/img/silverware-1667988_640.png';
+
+      // Get the number of people going to this place today
       data [date] = place.name + place.location.display_address;
       data.transaction_id = p;
   
