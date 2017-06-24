@@ -147,7 +147,8 @@ app.post ('/register', (req, rsp, next) => {
 
     const new_user = {
       'username': req.body.username,
-      'password': req.body.password
+      'password': req.body.password,
+      'location': location
     }
 
     db.add_user (new_user, (res, registered_user) => {
