@@ -203,8 +203,13 @@ app.post ('/going/:id',
     get_places (location, (err, places) => {
       var place = places[id];
       var today = getDate ();
+      var place_key = place.name + place.location.display_address;
 
-      user[today] = place.name + place.location.display_address;
+      if (user[today] == place_key) {
+        user[today] = null;
+      } else {
+        user[today] = place_key;
+      }
       
       db.update_user (user, res => {
         rsp.redirect ('/');
