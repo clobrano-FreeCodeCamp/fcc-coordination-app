@@ -18,7 +18,6 @@ app.use (logger('dev'));
 app.use (cookieparser());
 app.use (bodyparser.urlencoded({extended: false}));
 app.use (bodyparser.json());
-app.use (flash());
 app.use (exp_session({
   secret: 'crazy dog',
   saveUninitialized: false,
@@ -26,6 +25,7 @@ app.use (exp_session({
 }));
 app.use (passport.initialize());
 app.use (passport.session());
+app.use (flash());
 
 app.set ('/views', path.join(__dirname, 'views'));
 app.set ('view engine', 'pug');
@@ -36,10 +36,11 @@ app.use ("/img", express.static(path.join(__dirname, "/static/img")));
 passport.use ('local', new LocalStrategy ((username, password, done) => {
   db.find_user ({'username': username}, (err, user) => {
     if (err) { return done(err); }
-    if (!user) { return done (null, false, {'error': 'Invalid username or password'} ); };
+    if (!user) {
+        return done (null, false, {'error': 'Invalid username or password'} );
+    }
 
     db.verify_password (password, user.hash, res => {
-      console.log('Verify returned: ' + res);
       if (res) {
         return done (null, user);
       }
@@ -107,11 +108,13 @@ app.get('/', (req, rsp) => {
 });
 
 app.get ('/login', (req, rsp) => {
+  var messages = req.flash('error');
+  console.log (messages);
   rsp.render ('user-form', {
     'action': '/login',
     'title' : 'Please login',
     'buttonSubmit': 'Login',
-    'buttonAlternative': 'Register',
+    'messages': messages
   });
 });
 
@@ -119,7 +122,7 @@ app.post ('/login',
     passport.authenticate ('local', {
         successRedirect: '/',
         failureRedirect: '/login',
-        failureFlash: 'Invalid username or password' 
+        failureFlash: 'Username or password not valid'
     })
 );
 
@@ -128,7 +131,7 @@ app.get ('/register', (req, rsp) => {
     'action': '/register',
     'title' : 'Please register',
     'buttonSubmit': 'Register',
-    'buttonAlternative': 'Login',
+    messages: req.flash('error')
   });
 });
 
@@ -140,7 +143,7 @@ app.post ('/register', (req, rsp, next) => {
     }
 
     if (user) {
-      req.flash ('error', 'User already exists');
+      req.flash ('error', 'Username already exists');
       return rsp.redirect ('/register');
 
     }
