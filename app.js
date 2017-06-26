@@ -18,7 +18,6 @@ app.use (logger('dev'));
 app.use (cookieparser());
 app.use (bodyparser.urlencoded({extended: false}));
 app.use (bodyparser.json());
-app.use (flash());
 app.use (exp_session({
   secret: 'crazy dog',
   saveUninitialized: false,
@@ -26,6 +25,7 @@ app.use (exp_session({
 }));
 app.use (passport.initialize());
 app.use (passport.session());
+app.use (flash());
 
 app.set ('/views', path.join(__dirname, 'views'));
 app.set ('view engine', 'pug');
@@ -125,8 +125,7 @@ app.get ('/login', (req, rsp) => {
   rsp.render ('user-form', {
     'action': '/login',
     'title' : 'Please login',
-    'buttonSubmit': 'Login',
-    'buttonAlternative': 'Register',
+    'buttonSubmit': 'Login'
   });
 });
 
@@ -142,8 +141,7 @@ app.get ('/register', (req, rsp) => {
   rsp.render ('user-form', {
     'action': '/register',
     'title' : 'Please register',
-    'buttonSubmit': 'Register',
-    'buttonAlternative': 'Login',
+    'buttonSubmit': 'Register'
   });
 });
 
