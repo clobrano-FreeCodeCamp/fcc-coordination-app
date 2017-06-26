@@ -14,15 +14,17 @@ const passport = require ("passport")
 const db = require ('./database');
 
 const app = express();
-app.use (logger('dev'));
-app.use (cookieparser());
-app.use (bodyparser.urlencoded({extended: false}));
-app.use (bodyparser.json());
 app.use (exp_session({
   secret: 'crazy dog',
   saveUninitialized: false,
   resave: false
 }));
+app.use (logger('dev'));
+app.use (cookieparser());
+app.use (flash());
+app.use (bodyparser.urlencoded({extended: false}));
+app.use (bodyparser.json());
+
 app.use (passport.initialize());
 app.use (passport.session());
 app.use (flash());
@@ -60,18 +62,40 @@ passport.deserializeUser ((id, done) => {
   });
 });
 
-const location = 'cagliari, it';
+var location = null;
+
+app.post ('/search', (req, rsp) => {
+  if (req.body.location) {
+    location = req.body.location;
+
+    if (req.user) {
+      req.user.location = location;
+      db.update_user (req.user, res => {});
+    }
+  }
+
+  rsp.redirect('/');
+});
 
 app.get('/', (req, rsp) => {
   if (req.user) {
       loggedin = true;
       username = req.user.username;
+      location = req.user.location;
   } else {
       loggedin = false;
       username = null;
   }
 
-  const places = [];
+  var places = [];
+
+  if (!location) {
+    return rsp.render('index', {'loggedin': loggedin,
+                                'username': username,
+                                'location': location,
+                                places: places});
+  }
+
   get_places(location, (err, places) => {
     var date = getDate ();
     var waiting = 0;
@@ -86,7 +110,7 @@ app.get('/', (req, rsp) => {
       // Get the number of people going to this place today
       data [date] = place.name + place.location.display_address;
       data.transaction_id = p;
-  
+
       waiting++;
       db.get_people_going_to (data, (tr_id, people) => {
         if (people.length) {
@@ -167,7 +191,7 @@ app.post ('/register', (req, rsp, next) => {
 
 
 app.get ('/logout', (req, rsp) => {
-  req.logout ();   
+  req.logout ();
   rsp.redirect ('/');
 });
 
@@ -199,13 +223,15 @@ app.post ('/going/:id',
       } else {
         user[today] = place_key;
       }
-      
+
       db.update_user (user, res => {
         rsp.redirect ('/');
       });
 
     });
 });
+
+
 
 port = process.env.PORT || 3000
 app.listen(port);
